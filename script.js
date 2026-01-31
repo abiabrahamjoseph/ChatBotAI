@@ -1,8 +1,8 @@
 // State
 const state = {
     messages: [],
-    apiKey: localStorage.getItem('chat_api_key') || '',
-    apiUrl: localStorage.getItem('chat_api_url') || 'https://api.openai.com/v1/chat/completions',
+    // apiKey removed: Managed by backend
+    // apiUrl removed: Managed by backend (or fixed proxy endpoint)
     modelName: localStorage.getItem('chat_model_name') || 'gpt-4o-mini',
     systemPrompt: `You are a multilingual AI chat assistant for a website hosted on GitHub Pages.
 
@@ -39,8 +39,8 @@ const settingsBtn = document.getElementById('settings-btn');
 const settingsModal = document.getElementById('settings-modal');
 const closeSettings = document.getElementById('close-settings');
 const saveSettings = document.getElementById('save-settings');
-const apiKeyInput = document.getElementById('api-key');
-const apiUrlInput = document.getElementById('api-url');
+// apiKeyInput removed
+// apiUrlInput removed
 const modelNameInput = document.getElementById('model-name');
 
 // Helper: Time Format
@@ -89,11 +89,6 @@ function parseMarkdown(text) {
 
 // API Call
 async function sendMessageToAI(userMessage) {
-    if (!state.apiKey) {
-        appendMessage("⚠️ Please set your API Key in Settings first (top right icon).", false);
-        return;
-    }
-
     // Show typing indicator
     const typingDiv = document.createElement('div');
     typingDiv.className = 'message incoming';
@@ -102,11 +97,11 @@ async function sendMessageToAI(userMessage) {
     chatWindow.scrollTop = chatWindow.scrollHeight;
 
     try {
-        const response = await fetch(state.apiUrl, {
+        // Point to Local Backend
+        const response = await fetch('http://localhost:3000/api/chat', {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${state.apiKey}`
+                'Content-Type': 'application/json'
             },
             body: JSON.stringify({
                 model: state.modelName,
@@ -124,14 +119,10 @@ async function sendMessageToAI(userMessage) {
         try {
             data = JSON.parse(responseText);
         } catch (e) {
-            // If response is not JSON, treat the text as the error/content
-            throw new Error(`API Error (${response.status} ${response.statusText}): ${responseText.substring(0, 100)}...`);
+            throw new Error(`API Error (${response.status}): ${responseText.substring(0, 100)}...`);
         }
 
         if (!response.ok) {
-            if (response.status === 405) {
-                throw new Error(`Method Not Allowed (405). Please check your API Endpoint URL in Settings. It should fail only on valid POST endpoints (like .../chat/completions).`);
-            }
             throw new Error(data.error?.message || data.message || `API Error: ${responseText}`);
         }
 
@@ -153,7 +144,8 @@ async function sendMessageToAI(userMessage) {
         if (document.body.contains(typingDiv)) {
             chatWindow.removeChild(typingDiv);
         }
-        appendMessage(`❌ Error: ${error.message}`, false);
+        appendMessage(`❌ Error: ${error.message} (Is the backend running?)`, false);
+        console.error(error);
     }
 }
 
@@ -175,8 +167,6 @@ messageInput.addEventListener('keypress', (e) => {
 
 // Settings Modal Logic
 settingsBtn.addEventListener('click', () => {
-    apiKeyInput.value = state.apiKey;
-    apiUrlInput.value = state.apiUrl;
     modelNameInput.value = state.modelName;
     settingsModal.style.display = 'flex';
 });
@@ -186,12 +176,8 @@ closeSettings.addEventListener('click', () => {
 });
 
 saveSettings.addEventListener('click', () => {
-    state.apiKey = apiKeyInput.value.trim();
-    state.apiUrl = apiUrlInput.value.trim();
+    // Save only model name for now
     state.modelName = modelNameInput.value.trim();
-
-    localStorage.setItem('chat_api_key', state.apiKey);
-    localStorage.setItem('chat_api_url', state.apiUrl);
     localStorage.setItem('chat_model_name', state.modelName);
 
     settingsModal.style.display = 'none';
