@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WhatsApp AI Chatbot</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- SVG Icons support via CDN if needed, but we used innerHTML for icons in JS or static HTML -->
+    <!-- Using Font Awesome for simplicity in extracting icons if needed, 
+         but for this vanilla version we'll paste SVG directly in HTML to avoid dependencies -->
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <div class="sidebar visible">
+            <!-- Sidebar Header -->
+            <div class="sidebar-header">
+                <div class="avatar">
+                    <!-- User Icon -->
+                    <svg viewBox="0 0 24 24" fill="#aebac1" width="100%" height="100%">
+                        <path
+                            d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z" />
+                    </svg>
+                </div>
+                <div style="display: flex; gap: 20px; color: #aebac1;">
+                    <button class="icon-btn" title="New Chat">
+                        <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                            <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z" />
+                        </svg>
+                    </button>
+                    <button id="btn-settings" class="icon-btn" title="Settings">
+                        <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                            <path
+                                d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Search -->
+            <div class="sidebar-search">
+                <div class="search-input-container">
+                    <svg viewBox="0 0 24 24" width="24" height="24" fill="#8696a0" style="margin-right: 10px;">
+                        <path
+                            d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" />
+                    </svg>
+                    <input type="text" placeholder="Search or start new chat" class="search-input">
+                </div>
+            </div>
+
+            <!-- Contact List -->
+            <div class="contact-list">
+                <div class="contact-item active">
+                    <div class="avatar">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/0/04/ChatGPT_logo.svg" alt="AI"
+                            style="padding: 5px; background: white;">
+                    </div>
+                    <div class="contact-info">
+                        <div style="display: flex; justify-content: space-between;">
+                            <span class="contact-name">AI Assistant</span>
+                            <span class="contact-last-msg" style="font-size: 12px;">Now</span>
+                        </div>
+                        <span class="contact-last-msg">Click to start chatting...</span>
+                    </div>
+                </div>
+
+                <div class="contact-item">
+                    <div class="avatar">
+                        <div
+                            style="width:100%; height:100%; background:#00a884; display:flex; justify-content:center; align-items:center; font-weight:bold; color:white;">
+                            D</div>
+                    </div>
+                    <div class="contact-info">
+                        <div style="display: flex; justify-content: space-between;">
+                            <span class="contact-name">DeepSeek Bot</span>
+                            <span class="contact-last-msg" style="font-size: 12px;">Yesterday</span>
+                        </div>
+                        <span class="contact-last-msg">Model configuration integration...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chat Area -->
+        <div class="chat-area">
+            <div class="chat-header">
+                <!-- Mobile Back Button -->
+                <button id="btn-back" class="icon-btn" style="display: none; margin-right: 10px;">
+                    <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                        <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z" />
+                    </svg>
+                </button>
+
+                <div class="avatar" style="width: 40px; height: 40px;">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/0/04/ChatGPT_logo.svg" alt="AI"
+                        style="padding: 5px; background: white;">
+                </div>
+                <div class="contact-info">
+                    <span id="header-contact-name" class="contact-name">AI Assistant</span>
+                    <span id="header-contact-status" class="contact-last-msg">Online</span>
+                </div>
+                <div style="display: flex; gap: 15px; color: #aebac1;">
+                    <button class="icon-btn"><svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                            <path
+                                d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z" />
+                        </svg></button>
+                    <button class="icon-btn"><svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                            <path
+                                d="M20.01 15.38c-1.23 0-2.42-.2-3.53-.56-.35-.12-.74-.03-1.01.24l-2.2 2.2c-2.83-1.44-5.15-3.75-6.59-6.59l2.2-2.21c.28-.26.36-.65.25-1C8.7 6.45 8.5 5.25 8.5 4c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1 13.81 13.81 0 0 0 16 16 .55 0 1-.45 1-1v-3.5c0-.55-.45-1-1-1zM12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4z" />
+                        </svg></button>
+                    <div style="border-left: 1px solid #313d45; height: 24px; margin: auto 0;"></div>
+                    <button class="icon-btn"><svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                            <path
+                                d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" />
+                        </svg></button>
+                    <button class="icon-btn"><svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                            <path
+                                d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z" />
+                        </svg></button>
+                </div>
+            </div>
+
+            <div class="messages-container">
+                <!-- Messages will be injected here by JS -->
+                <div id="messages-end"></div>
+            </div>
+
+            <div class="chat-input-area">
+                <button class="icon-btn">
+                    <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                        <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" />
+                    </svg>
+                </button>
+
+                <div class="chat-input-wrapper">
+                    <input type="text" placeholder="Type a message" class="chat-input">
+                </div>
+
+                <button id="btn-send" class="icon-btn" style="display: none;">
+                    <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                        <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
+                    </svg>
+                </button>
+                <button id="btn-mic" class="icon-btn">
+                    <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                        <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z" />
+                        <path
+                            d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div id="settings-modal" class="modal-overlay">
+        <div class="modal-content">
+            <h2 class="modal-title">Settings</h2>
+            <div class="modal-body">
+                <div class="input-group">
+                    <label class="input-label">OpenAI / DeepSeek API Key</label>
+                    <input type="password" id="api-key-input" class="text-input" placeholder="sk-...">
+                    <p>Your key is stored locally in your browser and sent directly to the API.</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="btn-cancel-key" class="btn btn-secondary">Cancel</button>
+                <button id="btn-save-key" class="btn btn-primary">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
